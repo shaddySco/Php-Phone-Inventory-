@@ -3,6 +3,10 @@
 $pdo = new PDO('mysql:host=localhost;port=3306;dbname=Phones', 'root' , '');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+echo '<pre>';
+var_dump($_FILES);
+echo '</pre>';
+
 
 $errors = [];
 
@@ -29,20 +33,45 @@ $date = date('Y-m-d H:i:s');
     $errors[] = 'Product price is required';
  }
 
- if (empty($errors)){
+ if(!is_dir('images')){
+  mkdir('images');
+ }
 
+ if (empty($errors)){
+$image = $_FILES['image'] ?? null;
+$imagePath = '';
+if ($image){
+
+$imagePath = 'images/'.randomString(8).'/'.$image['name'];
+mkdir(dirname($imagePath));
+
+  move_uploaded_file($image['tmp_name'], $imagePath);
+}
  
  
 $statement = $pdo->prepare("INSERT INTO Phones (Title, Image, Color, Price, Create_date)
             VALUES(:title, :image, :color, :price, :date)");
 
             $statement->bindValue(':title', $title);
-            $statement->bindValue(':image', '');
-            $statement->bindValue(':color', $description);
+            $statement->bindValue(':image', $imagePath);
+            $statement->bindValue(':color', $color);
             $statement->bindValue(':price', $price);
             $statement->bindValue(':date', $date);
             $statement->execute();
+            header('Location: index.php');
 }
+}
+
+function randomString($n)
+{
+  $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  $str = '';
+  for ($i = 0; $i < $n; $i++){
+    $index = rand(0, strlen($characters) - 1);
+    $str .= $characters[$index];
+  }
+
+  return $str;
 }
 ?>
 
@@ -55,6 +84,7 @@ $statement = $pdo->prepare("INSERT INTO Phones (Title, Image, Color, Price, Crea
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+
 <link rel="stylesheet" href="app.css">
     <title>Product CRUD</title>
   </head>
@@ -68,10 +98,11 @@ $statement = $pdo->prepare("INSERT INTO Phones (Title, Image, Color, Price, Crea
                 <?php endforeach; ?>
         </div>
         <?php endif;?>
-    <form action="" method="post">
+
+    <form action="" method="post"  enctype="multipart/form-data">
   <div class="form-group">
     <label>Product Image</label>
-    <input type="file" name="Image" >
+    <input type="file" name="image" >
   </div>
   <div class="form-group">
     <label>Product Title</label>
@@ -79,12 +110,12 @@ $statement = $pdo->prepare("INSERT INTO Phones (Title, Image, Color, Price, Crea
   </div>
   <div class="form-group">
     <label>Product Color</label>
-    <textarea class="form-control" name="color"></textarea>
+    <textarea class="form-control" name="color"></textarea  value ="<?php echo $color?>">
   </div>
   
   <div class="form-group">
     <label>Product Price</label>
-    <input type="number" step=".01" name="Price" class="form-control" >
+    <input type="number" step=".01" name="Price" class="form-control" value ="<?php echo $price?> ">
   </div>
   
   

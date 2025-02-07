@@ -1,9 +1,9 @@
 <?php
 
-$pdo = new PDO('mysql:host=localhost;port=3306;dbname=product_crud', 'root' , '');
+$pdo = new PDO('mysql:host=localhost;port=3306;dbname=Phones', 'root' , '');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$statement = $pdo->prepare('SELECT*FROM Products ORDER BY create_date DESC');
+$statement = $pdo->prepare('SELECT*FROM Phones ORDER BY create_date DESC');
 $statement -> execute();
 $products = $statement->fetchAll(PDO::FETCH_ASSOC);
 
@@ -40,7 +40,7 @@ $products = $statement->fetchAll(PDO::FETCH_ASSOC);
     </tr>
   </thead>
   <tbody>
-    <?php foreach ($Products as $i => $product): ?>
+    <?php foreach ($products as $i => $product): ?>
         <tr>
       <th scope="row"><?php echo $i + 1 ?></th>
       <td></td>
