@@ -3,9 +3,7 @@
 $pdo = new PDO('mysql:host=localhost;port=3306;dbname=Phones', 'root' , '');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-echo '<pre>';
-var_dump($_FILES);
-echo '</pre>';
+
 
 
 $errors = [];
