@@ -3,8 +3,17 @@
 $pdo = new PDO('mysql:host=localhost;port=3306;dbname=Phones', 'root' , '');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$statement = $pdo->prepare('SELECT*FROM Phones ORDER BY create_date DESC');
-$statement -> execute();
+
+
+$search = $_GET['search'] ?? '';
+if ($search){
+  $statement = $pdo->prepare('SELECT * FROM Phones WHERE title LIKE :title ORDER BY create_date DESC');
+  $statement->bindValue(':title', "%$search%", PDO::PARAM_STR);
+} else {
+  $statement = $pdo->prepare('SELECT * FROM Phones ORDER BY create_date DESC');
+}
+
+$statement->execute();
 $products = $statement->fetchAll(PDO::FETCH_ASSOC);
 
 
@@ -25,8 +34,20 @@ $products = $statement->fetchAll(PDO::FETCH_ASSOC);
   </head>
   <body>
     <h1>Products CRUD</h1>
+    <p>
+<a href="create.php" class="btn btn-success">CREATE PRODUCT</a>
+    </p>
 
-    <a href="create.php" class="btn btn-success">CREATE PRODUCT</a>
+<form action="">
+<div class="input-group mb-3">
+  <input type="text" class="form-control" placeholder="Search for Product" name="search"
+  value="<?php echo $search ?>">
+  <div class="input-group-append">
+    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Search</button>
+  </div>
+</div>
+</form>
+
 <table class="table">
   <thead>
     <tr>
@@ -43,14 +64,19 @@ $products = $statement->fetchAll(PDO::FETCH_ASSOC);
     <?php foreach ($products as $i => $product): ?>
         <tr>
       <th scope="row"><?php echo $i + 1 ?></th>
-      <td></td>
+      <td>
+        <img src="<?php echo $product['Image'] ?>" class="thumb-image">
+      </td>
       
       <td><?php echo $product['Price'] ?></td>
       <td><?php echo $product['Title'] ?></td>
       <td><?php echo $product['Create_Date'] ?></td>
       <td>
-      <button type="button" class="btn btn-outline-primary">Edit</button>
-      <button type="button" class="btn btn-outline-danger">Delete</button>
+      <a href="update.php?id=<?php echo $product['id'] ?>" type="button" class="btn btn-outline-primary">Edit</a>
+      <form style="display: inline-block" method="post" action="delete.php">
+        <input type="hidden"name="id" value="<?php echo $product['id'] ?>">
+      <button type="submit" class="btn btn-outline-danger">Delete</button>
+      </form>
       </td>
      
     </tr>
